@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Transactions;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,12 +18,15 @@ public class TilesGenerator : MonoBehaviour
     [SerializeField]
     Button startGame; //Starts finding path
 
+    public TileData startPoint;
+    public TileData endPoint;
+
     public TileData[,] tiles;
     
 
     int distance;
 
-    int rows = 5, columns = 5;  //Size of grid
+    int rows = 10, columns = 10;  //Size of grid
 
     void Start()
     {
@@ -47,28 +51,29 @@ public class TilesGenerator : MonoBehaviour
 
                 if(i > 0)
                 {
-                    tile.UpdateDownNeighbour(tiles[x,i-1]);
+                    tile.UpdateNeighbour(tiles[x,i-1]);
                 }
                 if(x > 0)
                 {
-                    tile.UpdateLeftNeighbour(tiles[x-1,i]);
+                    tile.UpdateNeighbour(tiles[x-1,i]);
                 }
                 
                 tiles[x, i] = tile;
 
-                yield return new WaitForSeconds(0.2f);
+                yield return new WaitForSeconds(0.05f);
             }
         }
         
     }
     public void StartGame()
     {
+        Debug.Log("Henlo!");
+        //startPoint = null;
+        //endPoint = null;
 
-        TileData startPoint = null;
-        TileData endPoint = null;
-
-        foreach(TileData tile in tiles)
+        /*foreach(TileData tile in tiles)
         {
+            Debug.Log("eh?");
             while(startPoint == null || endPoint == null)
             {
                 if (tile.isStartPoint)
@@ -80,26 +85,84 @@ public class TilesGenerator : MonoBehaviour
                     endPoint = tile;
                 }
             }
-        }
+        }*/
 
-        ChoosePath(startPoint);
+        ChoosePath(startPoint,endPoint);
 
     }
-    public void ChoosePath(TileData startPoint)
+    public void ChoosePath(TileData startPoint, TileData endPoint)
     {
-        bool enterLoopHehe = true;
+        bool workHehe = true;
+        TileData current = null;
+        int i = 0;
         List<TileData> accesible = new List<TileData>();
         List<TileData> calculated = new List<TileData>();
         accesible.Add(startPoint);
 
-        while (enterLoopHehe)
+        while (workHehe)
         {
-            foreach()
-        }
-        gameObject.GetComponent<Renderer>().material.color = Color.green;
+            
+            if (accesible.Count == 1) 
+            {
+                current = accesible[0];
+                current.h_cost = Vector2.Distance(current.transform.position, endPoint.transform.position);
+                current.f_cost = current.h_cost + current.g_cost;
+                Debug.Log("Inside assigning current");
+            } 
+            else
+            {
+                current = accesible[0];
+                foreach (TileData tile in accesible)
+                {
+                    if (current.f_cost > tile.f_cost || (current.f_cost == tile.f_cost && current.h_cost > tile.h_cost))
+                    {
+                        current = tile;
+                    }                  
+                }
+            }
 
-        
-        
+            current.GetComponent<Renderer>().material.color = Color.green;
+
+            accesible.Remove(current);
+            calculated.Add(current);
+
+            if (current.isEndPoint)
+            {
+                MarkPath(current);
+                return; //something
+                
+            }
+            foreach(TileData neighbour in current.neighboures)
+            {
+                if(neighbour.isLocked || calculated.Contains(neighbour))
+                {
+                    continue;
+                }
+                if (!accesible.Contains(neighbour))
+                {
+                    Debug.Log("Sprawdza tych somsiadow");
+                    neighbour.g_cost = current.g_cost + Vector2.Distance(current.transform.position, neighbour.transform.position);
+                    neighbour.h_cost = Vector2.Distance(endPoint.transform.position, neighbour.transform.position);
+                    neighbour.f_cost = neighbour.g_cost + neighbour.h_cost;
+                    neighbour.gameObject.transform.parent = current.gameObject.transform;
+                    if (!accesible.Contains(neighbour))
+                    {
+                        accesible.Add(neighbour);
+                    }
+                }
+            }
+            i++;
+        }
+    }
+    public TileData MarkPath(TileData parent)
+    {
+        parent.gameObject.GetComponent<Renderer>().material.color = Color.red;
+        if (parent.isStartPoint)
+        {
+
+            return null;
+        }       
+        return MarkPath(parent.transform.parent.GetComponent<TileData>());
     }
     /*public Transform ChoosePath(Vector2 start, Vector2 end)
     {

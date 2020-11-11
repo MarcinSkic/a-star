@@ -10,25 +10,23 @@ public class TileData : MonoBehaviour
     public bool isStartPoint;
     public bool isEndPoint;
     public bool isPath;
-    
+    public float f_cost = 0;
+    public float h_cost = 0;
+    public float g_cost = 0;
 
-    public TileData UpNeighbour;
-    public TileData DownNeighbour;
-    public TileData RightNeighbour;
-    public TileData LeftNeighbour;
 
-    public void UpdateLeftNeighbour(TileData tile)
+    public List<TileData> neighboures;
+
+    public void UpdateNeighbour(TileData tile)
     {
-        tile.RightNeighbour = this;
-        LeftNeighbour = tile;
-    }
-    public void UpdateDownNeighbour(TileData tile)
-    {
-        tile.UpNeighbour = this;
-        DownNeighbour = tile;
+        neighboures.Add(tile);
+        tile.neighboures.Add(this);
     }
 
-    public void ChoosePath(Vector2 target, int distance)
+
+
+
+    /*public void ChoosePath(Vector2 target, int distance)  //Rekurencyjna próba podejścia do tematu
     {
         gameObject.GetComponent<Renderer>().material.color = Color.green;
 
@@ -65,5 +63,5 @@ public class TileData : MonoBehaviour
                 Debug.Log("Im STUCK!!!!");
             }
         }
-    }
+    }*/
 }
