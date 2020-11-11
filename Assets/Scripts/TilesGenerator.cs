@@ -62,7 +62,7 @@ public class TilesGenerator : MonoBehaviour
                 
                 tiles[x, i] = tile;
 
-                yield return new WaitForSeconds(0.05f);
+                yield return new WaitForSeconds(0.005f);
             }
         }
         
@@ -128,6 +128,10 @@ public class TilesGenerator : MonoBehaviour
             accesible.Remove(current);
             calculated.Add(current);
 
+            if (accesible.Count == 0)
+            {
+                uiController.text.text = "Nie da się dojść do celu, wszystkie ścieżki zablokowane";
+            }
             if (current.isEndPoint)
             {
                 MarkPath(current);

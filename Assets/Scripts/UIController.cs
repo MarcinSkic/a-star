@@ -6,7 +6,7 @@ using UnityEngine;
 public class UIController : MonoBehaviour
 {
 
-    [SerializeField] TextMeshProUGUI text;
+    public TextMeshProUGUI text;
     public bool clicked = false;
     public bool chosenStart = false;
     public bool chosenEnd = false;
