@@ -5,6 +5,7 @@ using UnityEngine;
 public class TileData : MonoBehaviour
 {
     public TilesGenerator manager;
+    public UIController uIController;
 
     public bool isLocked;
     public bool isStartPoint;
@@ -22,7 +23,7 @@ public class TileData : MonoBehaviour
         neighboures.Add(tile);
         tile.neighboures.Add(this);
     }
-
+    
 
 
 

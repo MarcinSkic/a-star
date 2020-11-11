@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5978096490264382814}
   - component: {fileID: 5978096490264382815}
   - component: {fileID: 5978096490264382812}
-  - component: {fileID: 2601472474258472918}
+  - component: {fileID: 7765853412767077433}
   m_Layer: 0
   m_Name: Cube (1)
   m_TagString: Untagged
@@ -107,7 +107,7 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &2601472474258472918
+--- !u!114 &7765853412767077433
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -119,3 +119,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d13d6f2c34955654fad8fc1a0552e7cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  manager: {fileID: 0}
+  uIController: {fileID: 0}
+  isLocked: 0
+  isStartPoint: 0
+  isEndPoint: 0
+  isPath: 0
+  f_cost: 0
+  h_cost: 0
+  g_cost: 0
+  neighboures: []

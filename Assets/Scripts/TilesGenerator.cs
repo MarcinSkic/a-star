@@ -15,14 +15,16 @@ public class TilesGenerator : MonoBehaviour
 
     [SerializeField]
     Button startGrid;   //Starts generation
-    [SerializeField]
-    Button startGame; //Starts finding path
+
+    public Button startGame; //Starts finding path
 
     public TileData startPoint;
     public TileData endPoint;
 
     public TileData[,] tiles;
     
+    public UIController uiController;
+
 
     int distance;
 
@@ -31,7 +33,6 @@ public class TilesGenerator : MonoBehaviour
     void Start()
     {
         startGrid.onClick.AddListener(StartHelper);
-        startGame.onClick.AddListener(StartGame);
     }
     public void StartHelper()
     {
@@ -48,6 +49,7 @@ public class TilesGenerator : MonoBehaviour
                 var tile = Instantiate(tilePrefab, generationStartPoint);
                 tile.transform.Translate(new Vector2(x*1.1f, i*1.1f));
                 tile.manager = this;
+                tile.uIController = uiController;
 
                 if(i > 0)
                 {
