@@ -109,7 +109,7 @@ public class TilesGenerator : MonoBehaviour
                 current = accesible[0];
                 current.h_cost = Vector2.Distance(current.transform.position, endPoint.transform.position);
                 current.f_cost = current.h_cost + current.g_cost;
-                Debug.Log("Inside assigning current");
+                //Debug.Log("Inside assigning current");
             } 
             else
             {
@@ -142,7 +142,7 @@ public class TilesGenerator : MonoBehaviour
                 }
                 if (!accesible.Contains(neighbour))
                 {
-                    Debug.Log("Sprawdza tych somsiadow");
+                    //Debug.Log("Sprawdza tych somsiadow");
                     neighbour.g_cost = current.g_cost + Vector2.Distance(current.transform.position, neighbour.transform.position);
                     neighbour.h_cost = Vector2.Distance(endPoint.transform.position, neighbour.transform.position);
                     neighbour.f_cost = neighbour.g_cost + neighbour.h_cost;

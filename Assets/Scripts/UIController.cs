@@ -38,6 +38,7 @@ public class UIController : MonoBehaviour
             clickedTile.gameObject.GetComponent<Renderer>().material.color = Color.yellow;
             text.text = "Jak chcesz to dodaj kafelki zablokowane i możesz zaczynać";
             chosenEnd = true;
+            tilesGenerator.startGame.onClick.RemoveAllListeners();
             tilesGenerator.startGame.onClick.AddListener(tilesGenerator.StartGame);
         } 
         else 
