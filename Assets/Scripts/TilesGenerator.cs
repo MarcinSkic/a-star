@@ -95,6 +95,7 @@ public class TilesGenerator : MonoBehaviour
         startedDrawing = true;
         bool workHehe = true;
         bool checkedForNeighboures = false;
+        bool firstEntry = true;
         TileData current = null;
         int i = 0;
         List<TileData> accesible = new List<TileData>();
@@ -103,10 +104,11 @@ public class TilesGenerator : MonoBehaviour
 
         while (workHehe)
         {
-            //Debug.Log(accesible.Count);
+            Debug.Log(accesible.Count);
             
-            if (accesible.Count == 1) 
+            if (firstEntry) 
             {
+                firstEntry = false;
                 current = accesible[0];
                 current.h_cost = Vector2.Distance(current.transform.position, endPoint.transform.position);
                 current.f_cost = current.h_cost + current.g_cost;
@@ -140,12 +142,7 @@ public class TilesGenerator : MonoBehaviour
                 
                 
             }
-            if (accesible.Count == 0 && checkedForNeighboures)
-            {
-                uiController.text.text = "Nie da się dojść do celu, wszystkie ścieżki zablokowane";
-                startedDrawing = false;
-                StopAllCoroutines();
-            }
+            
 
             foreach (TileData neighbour in current.neighboures)
             {
@@ -167,7 +164,15 @@ public class TilesGenerator : MonoBehaviour
                     
                 }
             }
+
             checkedForNeighboures = true;
+
+            if (accesible.Count == 0 && checkedForNeighboures)
+            {
+                uiController.text.text = "Nie da się dojść do celu, wszystkie ścieżki zablokowane";
+                startedDrawing = false;
+                StopAllCoroutines();
+            }
             i++;
         }
     }
