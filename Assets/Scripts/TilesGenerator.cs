@@ -2,11 +2,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Transactions;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class TilesGenerator : MonoBehaviour
 {
+    [SerializeField, Range(0.1f, 1)]
+    float speedOfDrawing;
+    
+    
     [SerializeField]
     Transform generationStartPoint; //Where generation of grid begins
 
@@ -16,8 +21,6 @@ public class TilesGenerator : MonoBehaviour
     [SerializeField]
     Button startGrid;   //Starts generation
 
-    public Button startGame; //Starts finding path
-
     public TileData startPoint;
     public TileData endPoint;
 
@@ -25,6 +28,8 @@ public class TilesGenerator : MonoBehaviour
     
     public UIController uiController;
 
+    [HideInInspector]
+    public bool startedDrawing = false;
 
     int distance;
 
@@ -36,6 +41,11 @@ public class TilesGenerator : MonoBehaviour
     }
     public void StartHelper()
     {
+        
+        startGrid.onClick.RemoveAllListeners();
+        startGrid.GetComponentInChildren<TextMeshProUGUI>().text = "Zrestartuj siatkę";
+        uiController.text.text = "Wybierz kafelka startowego";
+        startGrid.onClick.AddListener(uiController.Restart);
         StartCoroutine(MakeGrid());
     }
     public IEnumerator MakeGrid()
@@ -54,9 +64,18 @@ public class TilesGenerator : MonoBehaviour
                 if(i > 0)
                 {
                     tile.UpdateNeighbour(tiles[x,i-1]);
+                    
                 }
                 if(x > 0)
                 {
+                    if (i > 0)
+                    {
+                        tile.UpdateNeighbour(tiles[x - 1, i - 1]);
+                        if (x < rows - 1)
+                        {
+                            tile.UpdateNeighbour(tiles[x + 1, i - 1]);
+                        }
+                    }
                     tile.UpdateNeighbour(tiles[x-1,i]);
                 }
                 
@@ -69,32 +88,13 @@ public class TilesGenerator : MonoBehaviour
     }
     public void StartGame()
     {
-        Debug.Log("Henlo!");
-        //startPoint = null;
-        //endPoint = null;
-
-        /*foreach(TileData tile in tiles)
-        {
-            Debug.Log("eh?");
-            while(startPoint == null || endPoint == null)
-            {
-                if (tile.isStartPoint)
-                {
-                    startPoint = tile;
-                }
-                else if (tile.isEndPoint)
-                {
-                    endPoint = tile;
-                }
-            }
-        }*/
-
-        ChoosePath(startPoint,endPoint);
-
+        StartCoroutine(ChoosePath(startPoint,endPoint));
     }
-    public void ChoosePath(TileData startPoint, TileData endPoint)
+    IEnumerator ChoosePath(TileData startPoint, TileData endPoint)
     {
+        startedDrawing = true;
         bool workHehe = true;
+        bool checkedForNeighboures = false;
         TileData current = null;
         int i = 0;
         List<TileData> accesible = new List<TileData>();
@@ -103,6 +103,7 @@ public class TilesGenerator : MonoBehaviour
 
         while (workHehe)
         {
+            //Debug.Log(accesible.Count);
             
             if (accesible.Count == 1) 
             {
@@ -122,31 +123,39 @@ public class TilesGenerator : MonoBehaviour
                     }                  
                 }
             }
-
+            
             current.GetComponent<Renderer>().material.color = Color.green;
 
             accesible.Remove(current);
             calculated.Add(current);
 
-            if (accesible.Count == 0)
-            {
-                uiController.text.text = "Nie da się dojść do celu, wszystkie ścieżki zablokowane";
-            }
+            
+
             if (current.isEndPoint)
             {
-                MarkPath(current);
-                return; //something
+                uiController.text.text = "Ścieżka znaleziona";
+                
+                StopAllCoroutines();
+                StartCoroutine(MarkPath(current));
+                
                 
             }
-            foreach(TileData neighbour in current.neighboures)
+            if (accesible.Count == 0 && checkedForNeighboures)
+            {
+                uiController.text.text = "Nie da się dojść do celu, wszystkie ścieżki zablokowane";
+                startedDrawing = false;
+                StopAllCoroutines();
+            }
+
+            foreach (TileData neighbour in current.neighboures)
             {
                 if(neighbour.isLocked || calculated.Contains(neighbour))
                 {
                     continue;
                 }
-                if (!accesible.Contains(neighbour))
+                if (!accesible.Contains(neighbour) || Vector2.Distance(current.transform.parent.transform.position,neighbour.transform.position)+current.transform.parent.GetComponent<TileData>().g_cost < neighbour.g_cost)
                 {
-                    //Debug.Log("Sprawdza tych somsiadow");
+                    yield return new WaitForSeconds((1/speedOfDrawing)/50f);
                     neighbour.g_cost = current.g_cost + Vector2.Distance(current.transform.position, neighbour.transform.position);
                     neighbour.h_cost = Vector2.Distance(endPoint.transform.position, neighbour.transform.position);
                     neighbour.f_cost = neighbour.g_cost + neighbour.h_cost;
@@ -155,12 +164,32 @@ public class TilesGenerator : MonoBehaviour
                     {
                         accesible.Add(neighbour);
                     }
+                    
                 }
             }
+            checkedForNeighboures = true;
             i++;
         }
     }
-    public TileData MarkPath(TileData parent)
+    IEnumerator MarkPath(TileData parent)
+    {
+        yield return new WaitForSeconds((1 / speedOfDrawing)/50f);
+        
+
+        if (parent.isStartPoint)
+        {
+            StopAllCoroutines();
+        }
+
+        parent.gameObject.GetComponent<Renderer>().material.color = Color.red;
+
+        StartCoroutine(MarkPath(parent.transform.parent.GetComponent<TileData>()));
+    }
+    public void ChangeValueOfDrawingSpeed(float value)
+    {
+        speedOfDrawing = Mathf.Clamp(value,0.1f,1f);
+    }
+    /*public TileData MarkPath(TileData parent)
     {
         parent.gameObject.GetComponent<Renderer>().material.color = Color.red;
         if (parent.isStartPoint)
@@ -169,22 +198,6 @@ public class TilesGenerator : MonoBehaviour
             return null;
         }       
         return MarkPath(parent.transform.parent.GetComponent<TileData>());
-    }
-    /*public Transform ChoosePath(Vector2 start, Vector2 end)
-    {
-        Vector2 direction = new Vector2(end.x - start.x, end.y - start.y);
-        if(Mathf.Abs(direction.x) > Mathf.Abs(direction.y))
-        {
-            if(direction.x < 0)
-            {
-
-            }
-        }       
-        else
-        {
-
-        }
-        return  
     }*/
-    //public enum Directions {Up, Down, Right, Left };
+
 }

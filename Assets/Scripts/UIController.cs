@@ -2,24 +2,29 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIController : MonoBehaviour
 {
 
     public TextMeshProUGUI text;
-    public bool clicked = false;
     public bool chosenStart = false;
     public bool chosenEnd = false;
     [HideInInspector]
     public TileData clickedTile;
 
+    [SerializeField]
+    Button startGame;
+
     public TilesGenerator tilesGenerator;
+    [SerializeField]
+    Slider slider;
 
     private void Start()
     {
-        text.text = "Wybierz kafelka startowego";
-        tilesGenerator.startGame.onClick.AddListener(ShowMessage);
-
+        slider.onValueChanged.AddListener(delegate { tilesGenerator.ChangeValueOfDrawingSpeed(slider.value); });
+        text.text = "Wygeneruj siatkę";
+        startGame.onClick.AddListener(ShowMessage);
     }
     public void ChoosingTiles()
     {
@@ -38,8 +43,8 @@ public class UIController : MonoBehaviour
             clickedTile.gameObject.GetComponent<Renderer>().material.color = Color.yellow;
             text.text = "Jak chcesz to dodaj kafelki zablokowane i możesz zaczynać";
             chosenEnd = true;
-            tilesGenerator.startGame.onClick.RemoveAllListeners();
-            tilesGenerator.startGame.onClick.AddListener(tilesGenerator.StartGame);
+            startGame.onClick.RemoveAllListeners();
+            startGame.onClick.AddListener(tilesGenerator.StartGame);
         } 
         else 
         {
@@ -51,15 +56,18 @@ public class UIController : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            Debug.Log("Send?");
+            //Debug.Log("Send?");
 
             RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
-            
-                Debug.Log(hit.transform.name);
+            if(hit.transform != null && !tilesGenerator.startedDrawing)
+            {
+                //Debug.Log(hit.transform.name);
                 if (hit.transform.gameObject.TryGetComponent<TileData>(out clickedTile))
                 {
                     ChoosingTiles();
-                }                        
+                }
+            }
+                                     
         }
     }
 
@@ -70,7 +78,24 @@ public class UIController : MonoBehaviour
     public IEnumerator Text(string oldMessage)
     {
         text.text = "Najpierw wybierz kafelki startu i końca";
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(2f);
         text.text = oldMessage;
+    }
+    public void Restart(){
+
+        chosenEnd = false;
+        chosenStart = false;
+        tilesGenerator.startedDrawing = false;
+
+        startGame.onClick.RemoveAllListeners();
+        startGame.onClick.AddListener(ShowMessage);
+        text.text = "Wybierz kafelka startowego";
+
+        foreach (TileData tile in tilesGenerator.tiles)
+        {
+            Destroy(tile.gameObject);   //Wiem że to mało wydajne i eleganckie
+        }
+        tilesGenerator.tiles = null;
+        StartCoroutine(tilesGenerator.MakeGrid());
     }
 }
