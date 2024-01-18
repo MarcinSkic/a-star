@@ -56,12 +56,9 @@ public class UIController : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            //Debug.Log("Send?");
-
             RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
             if(hit.transform != null && !tilesGenerator.startedDrawing)
             {
-                //Debug.Log(hit.transform.name);
                 if (hit.transform.gameObject.TryGetComponent<TileData>(out clickedTile))
                 {
                     ChoosingTiles();

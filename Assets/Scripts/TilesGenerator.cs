@@ -103,16 +103,13 @@ public class TilesGenerator : MonoBehaviour
         accesible.Add(startPoint);
 
         while (workHehe)
-        {
-            Debug.Log(accesible.Count);
-            
+        {          
             if (firstEntry) 
             {
                 firstEntry = false;
                 current = accesible[0];
                 current.h_cost = Vector2.Distance(current.transform.position, endPoint.transform.position);
                 current.f_cost = current.h_cost + current.g_cost;
-                //Debug.Log("Inside assigning current");
             } 
             else
             {
